@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>It's Raining Men — Character Rankings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@sgratzl/chartjs-chart-boxplot@4"></script>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: #0b0b1a;
+    color: #e0e0e0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(11, 11, 26, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    transition: background 0.3s;
+  }
+
+  .nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: #fff;
+  }
+
+  .nav-brand-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #f0c040, #e06830);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+  }
+
+  .nav-brand-text {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    letter-spacing: 0.3px;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    text-decoration: none;
+    color: #8a8fa8;
+    font-size: 0.88rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: color 0.2s, background 0.2s;
+    position: relative;
+  }
+
+  .nav-links a:hover { color: #e0e0e0; background: rgba(255,255,255,0.05); }
+
+  .nav-links a.active {
+    color: #f0c040;
+    background: rgba(240, 192, 64, 0.1);
+  }
+
+  .nav-links a.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 2px;
+    background: #f0c040;
+    border-radius: 2px;
+  }
+
+  /* Mobile hamburger */
+  .hamburger {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    color: #e0e0e0;
+  }
+
+  .hamburger svg { display: block; }
+
+  @media (max-width: 640px) {
+    .hamburger { display: block; }
+    .nav-links {
+      position: fixed;
+      top: 64px;
+      left: 0;
+      right: 0;
+      background: rgba(11, 11, 26, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      flex-direction: column;
+      padding: 1rem;
+      gap: 0.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      transform: translateY(-120%);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      pointer-events: none;
+    }
+    .nav-links.open {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .nav-links a { width: 100%; text-align: center; padding: 0.75rem 1rem; }
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    padding: 8rem 1.5rem 4rem;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at 30% 50%, rgba(240, 192, 64, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 50%, rgba(106, 44, 145, 0.06) 0%, transparent 50%);
+    animation: heroShift 20s ease-in-out infinite alternate;
+    z-index: 0;
+  }
+
+  @keyframes heroShift {
+    0%   { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(-5%, 3%) rotate(3deg); }
+  }
+
+  .hero-content { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; }
+
+  .hero-quote {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+    color: #f0c040;
+    line-height: 1.4;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s ease forwards;
+  }
+
+  .hero-desc {
+    font-size: clamp(0.9rem, 2vw, 1.05rem);
+    color: #8a8fa8;
+    line-height: 1.7;
+    max-width: 540px;
+    margin: 0 auto;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.5s ease forwards;
+  }
+
+  .hero-divider {
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #f0c040, transparent);
+    margin: 2rem auto 0;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.7s ease forwards;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── MAIN CONTENT ── */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #6a6a8a;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+  }
+
+  .view-transition { animation: fadeSlide 0.4s ease; }
+
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .chart-hint {
+    text-align: center;
+    font-size: 0.82rem;
+    color: #555;
+    margin-bottom: 1rem;
+    font-style: italic;
+  }
+
+  .legend-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem 1rem;
+    margin-bottom: 1.25rem;
+    font-size: 0.82rem;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: #aaa;
+  }
+
+  .legend-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    display: inline-block;
+  }
+
+  /* Chart wrapper — glass card */
+  .chart-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    padding: 1.5rem;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  #mainChartContainer {
+    position: relative;
+    width: 100%;
+    cursor: pointer;
+  }
+
+  /* ── DRILLDOWN ── */
+  #drilldownView {
+    display: none;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+
+  #drilldownView.active { display: block; }
+
+  #drilldownView {
+    scroll-margin-top: 80px;
+  }
+
+  .drilldown-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+
+  .drilldown-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(255, 255, 255, 0.04);
+    color: #8a8fa8;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0.5rem 1.2rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    transition: all 0.2s;
+    min-width: 120px;
+  }
+
+  .drilldown-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #e0e0e0;
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .drilldown-nav-btn:disabled {
+    opacity: 0.3;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  .drilldown-nav-btn.prev { justify-content: flex-start; }
+  .drilldown-nav-btn.next { justify-content: flex-end; }
+
+  .drilldown-close {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: none;
+    color: #555;
+    border: none;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    transition: color 0.2s;
+  }
+
+  .drilldown-close:hover { color: #aaa; }
+
+  .drilldown-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .drilldown-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    color: #f0c040;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+  }
+
+  .drilldown-header .char-series {
+    font-size: 0.88rem;
+    color: #6a6a8a;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+  }
+
+  .drilldown-header .total {
+    color: #8a8fa8;
+    font-size: 0.95rem;
+  }
+
+  .drilldown-header .total strong {
+    color: #f0c040;
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+
+  .radar-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    padding: 1.5rem;
+    max-width: 500px;
+    margin: 0 auto 2.5rem;
+  }
+
+  .justifications {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .justification-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1.25rem 1.4rem;
+    border-left: 3px solid #555;
+    transition: transform 0.2s, background 0.2s;
+  }
+
+  .justification-card:hover {
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .justification-card .dim-label {
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.25rem;
+  }
+
+  .justification-card .dim-score {
+    font-size: 0.78rem;
+    color: #555;
+    margin-bottom: 0.6rem;
+  }
+
+  .justification-card .dim-score .score-pips {
+    display: inline-flex;
+    gap: 3px;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+  }
+
+  .justification-card .dim-score .pip {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .justification-card .dim-text {
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: #b0b0b0;
+  }
+
+  /* ── COMING SOON MODAL ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .modal-box {
+    background: #161628;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    transform: scale(0.9);
+    transition: transform 0.3s;
+  }
+
+  .modal-overlay.active .modal-box { transform: scale(1); }
+
+  .modal-box .modal-emoji {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .modal-box h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: #f0c040;
+    margin-bottom: 0.5rem;
+  }
+
+  .modal-box p {
+    color: #8a8fa8;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  .modal-close {
+    background: rgba(240, 192, 64, 0.1);
+    color: #f0c040;
+    border: 1px solid rgba(240, 192, 64, 0.2);
+    padding: 0.6rem 2rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: background 0.2s;
+  }
+
+  .modal-close:hover { background: rgba(240, 192, 64, 0.2); }
+
+  /* ── FOOTER ── */
+  .footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    padding: 3rem 1.5rem;
+    text-align: center;
+  }
+
+  .footer-inner {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .footer-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: #f0c040;
+    margin-bottom: 0.75rem;
+  }
+
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem 1.5rem;
+    margin-bottom: 1.25rem;
+    list-style: none;
+  }
+
+  .footer-links a {
+    color: #555;
+    text-decoration: none;
+    font-size: 0.82rem;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: #8a8fa8; }
+
+  .footer-copy {
+    font-size: 0.75rem;
+    color: #333;
+  }
+
+  /* ── DRILLDOWN BOTTOM NAV (duplicate for bottom) ── */
+  .drilldown-nav-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255,255,255,0.04);
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: #0b0b1a; }
+  ::-webkit-scrollbar-thumb { background: #222; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #333; }
+</style>
+</head>
+<body>
+
+<!-- ── NAVIGATION ── -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="#" class="nav-brand" onclick="return false;">
+      <div class="nav-brand-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M12 2v6M12 22v-6M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M2 12h6M22 12h-6M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24"/></svg>
+      </div>
+      <span class="nav-brand-text">It's Raining Men</span>
+    </a>
+    <button class="hamburger" onclick="toggleMobileNav()" aria-label="Toggle menu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#content" data-series="cosmere" onclick="switchSeries('cosmere', this); return false;">Cosmere</a></li>
+      <li><a href="#content" data-series="harry-potter" onclick="switchSeries('harry-potter', this); return false;">Harry Potter</a></li>
+      <li><a href="#content" data-series="romantasy" onclick="switchSeries('romantasy', this); return false;">Romantasy</a></li>
+      <li><a href="#content" class="active" data-series="all" onclick="switchSeries('all', this); return false;">All</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-content">
+    <p class="hero-quote">"Tall, blonde, dark and lean<br>Rough and tough and strong and mean"</p>
+    <p class="hero-desc">Scoring fictional men against the eight criteria from the Weather Girls' classic. Because someone had to do the important work.</p>
+    <div class="hero-divider"></div>
+  </div>
+</section>
+
+<!-- ── MAIN CONTENT ── -->
+<div class="container" id="content" style="display:flex; flex-direction:column;">
+
+  <!-- Rankings Chart (always visible) -->
+  <div id="mainView" style="order:0;">
+    <div class="section-label">Character Rankings</div>
+    <p class="chart-hint">Click a character bar to see their full breakdown</p>
+    <div class="legend-row" id="legendRow"></div>
+    <div class="chart-card">
+      <div id="mainChartContainer">
+        <canvas id="mainChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Drilldown (appears below chart) -->
+    <div id="drilldownView">
+      <div class="drilldown-nav">
+        <button class="drilldown-nav-btn prev" id="prevBtn" onclick="navigateChar(-1)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          <span id="prevLabel">Previous</span>
+        </button>
+        <button class="drilldown-close" onclick="closeDrilldown()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Close
+        </button>
+        <button class="drilldown-nav-btn next" id="nextBtn" onclick="navigateChar(1)">
+          <span id="nextLabel">Next</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+      <div class="drilldown-header">
+        <h2 id="drillCharName"></h2>
+        <div class="char-series" id="drillCharSeries"></div>
+        <div class="total" id="drillTotal"></div>
+      </div>
+      <div class="radar-card">
+        <canvas id="radarChart"></canvas>
+      </div>
+      <div class="section-label">Score Justifications</div>
+      <div class="justifications" id="justCards"></div>
+      <div class="drilldown-nav drilldown-nav-bottom">
+        <button class="drilldown-nav-btn prev" id="prevBtnBottom" onclick="navigateChar(-1)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          <span id="prevLabelBottom">Previous</span>
+        </button>
+        <button class="drilldown-close" onclick="closeDrilldown()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Close
+        </button>
+        <button class="drilldown-nav-btn next" id="nextBtnBottom" onclick="navigateChar(1)">
+          <span id="nextLabelBottom">Next</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bubble: Popularity vs Median Score (only visible in All mode) -->
+  <div id="bubbleSection" style="display:none; margin-top: 3rem;">
+    <div class="section-label">Fandom Size vs Max Raining Men Score</div>
+    <p class="chart-hint">Each point is a series/sub-series. Fandom size = subreddit subscribers.</p>
+    <div class="chart-card">
+      <div id="bubbleContainer" style="position:relative; width:100%; height:520px;">
+        <canvas id="bubbleChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Boxplot by Series (only visible in All mode) -->
+  <div id="boxplotSection" style="display:none; margin-top: 3rem;">
+    <div class="section-label">Score Distribution by Series</div>
+    <div class="chart-card">
+      <div id="boxplotContainer" style="position:relative; width:100%; height:500px;">
+        <canvas id="boxplotChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── COMING SOON MODAL ── -->
+<div class="modal-overlay" id="comingSoonModal" onclick="closeModal(event)">
+  <div class="modal-box">
+    <div class="modal-emoji">&#9749;</div>
+    <h3 id="modalTitle">Coming Soon</h3>
+    <p id="modalDesc">We haven't scored these characters yet. Check back later.</p>
+    <button class="modal-close" onclick="closeModal()">Got it</button>
+  </div>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">It's Raining Men</div>
+    <ul class="footer-links">
+      <li><a href="#">About</a></li>
+      <li><a href="#">Methodology</a></li>
+      <li><a href="#">Suggest a Series</a></li>
+      <li><a href="#">GitHub</a></li>
+    </ul>
+    <p class="footer-copy">A deeply serious academic exercise. No characters were harmed in the making of these rankings.</p>
+  </div>
+</footer>
+
+<script>
+/* ── DATA ── */
+const DIMS = ['Tall','Blonde','Dark','Lean','Rough','Tough','Strong','Mean'];
+
+const COLORS = {
+  Tall:   '#4aa8d8',
+  Blonde: '#f0c040',
+  Dark:   '#6a2c91',
+  Lean:   '#2ec4b6',
+  Rough:  '#a0704a',
+  Tough:  '#8a8fa0',
+  Strong: '#d93030',
+  Mean:   '#8b1a2b'
+};
+
+const SERIES_DATA = {
+  'cosmere': [
+    { name:'Kelsier', series:'Mistborn Era 1', scores:[4,5,4,4,3,5,5,3], total:33,
+      just:["Described as tall, though no specific measurement. Tall and lanky.","Light blonde hair \u2014 the blondest major character in the Cosmere.","Always smiling, but beneath it: orchestrated a revolution, murdered nobles without remorse, has a deeply vengeful streak. The smile is a mask over genuine darkness.","Lean and lanky, athletic build. Shares the lanky frame with Marsh.","Grew up on the streets, survived the Pits, covered in scars. But also charismatic and smooth \u2014 half-nobleman.","Survived the Pits of Hathsin (where everyone else died). Lost his wife there, Snapped, and came back to overthrow an empire. Literally refused to stay dead.","The most powerful Mistborn of his era. Killed an Inquisitor solo. Fought the Lord Ruler.","Charming and warm to his crew, but genuinely enjoys killing nobles. Has a ruthless, vengeful core that Sanderson has called \u2018a touch villainous.\u2019"]},
+    { name:'Marsh', series:'Mistborn Era 1 & 2', scores:[4,4,5,2,3,5,5,4], total:32,
+      just:["Tall and broad-shouldered.","Similar appearance to Kelsier who has light-blonde hair. Brothers.","Became a Steel Inquisitor with spikes through his eyes. Spent centuries under Ruin\u2019s control. The darkest trajectory of any Cosmere character.","Broad-shouldered, statuesque. More solid than Kelsier\u2019s lanky build.","Pre-Inquisitor: serious, austere, lived among the skaa resistance. Post-Inquisitor: terrifying metal-spiked nightmare.","Endured being made into a Steel Inquisitor, fought Ruin\u2019s control for centuries, survived into Era 2 as a near-mythical figure. Unbreakable.","Steel Inquisitor with massively enhanced Allomantic abilities. Nearly unkillable.","As an Inquisitor, genuinely terrifying. Even pre-conversion, Kelsier\u2019s crew found him severe and humourless. \u2018Ironeyes\u2019 is a figure of fear across eras."]},
+    { name:'Kaladin', series:'The Stormlight Archive', scores:[5,1,5,3,3,5,5,2], total:29,
+      just:["~6\u20194\u201d, one of the tallest characters on Roshar, towers over most.","Jet black Alethi hair.","The poster child for brooding. Depression, trauma, perpetual storm expression. Dark hair, dark eyes, dark past.","Muscular but described as having \u2018lean lankiness\u2019 vs Adolin\u2019s bulk. Soldier-lean, not wiry.","Former slave and bridgeman, but was originally a surgeon\u2019s son. Has refinement beneath the grit.","Survived Bridge Four, the slave pits, multiple assassination attempts. Mental resilience through severe depression. The definition of tough.","Windrunner with Stormlight. Even without it, wrestled and fought as a soldier from age ~15.","Intimidating expression but fundamentally protective and caring. He scowls, but he\u2019s saving your life while doing it."]},
+    { name:'Vasher', series:'Warbreaker / Stormlight Archive', scores:[4,1,4,3,5,5,4,3], total:29,
+      just:["Described as tall. Imposing presence as a swordsmaster.","Dark/scruffy. No indication of light hair.","Solitary, gruff, carries a sentient sword that hungers to destroy evil. Former warlord who started a devastating war.","Can alter his body but generally presented as solid. Not bulky, not thin.","The roughest character in the Cosmere. Permanently scruffy. Snaps at everyone. Lives in poverty by choice.","Thousands of years old Returned. Survived wars, exile, world-hopping. Trains Shardbearers.","Returned with enormous BioChromatic power. Created Nightblood. Expert swordsman.","Terrible temper, snaps at people, brutal. But fundamentally a good man underneath."]},
+    { name:'Dalinar', series:'The Stormlight Archive', scores:[5,1,4,1,4,5,5,3], total:28,
+      just:["Large, imposing Alethi man. Commands physical presence in every room.","Black hair silvering \u2014 about as far from blonde as it gets.","\u2018The Blackthorn\u2019 was a terrifying warlord. He burned the Rift. His past is deeply dark.","Built like a brick wall. Powerfully muscular, nothing lean about him.","The Blackthorn was a blunt instrument of war. Even reformed, he\u2019s unpolished \u2014 warrior\u2019s face, direct to the point of social awkwardness.","Survived the Thrill, alcoholism, memory wipe, Odium\u2019s champion challenge. \u2018You cannot have my pain.\u2019","Bondsmith. Even pre-Radiant, one of the most feared warriors on Roshar.","Present Dalinar is honourable, but the Blackthorn was genuinely terrifying and ruthless."]},
+    { name:'Hoid', series:'Cosmere-wide', scores:[4,3,3,5,2,4,3,3], total:27,
+      just:["Described as tall, thin build.","White hair \u2014 not blonde exactly, but light. The silver fox of the Cosmere.","Mysterious, manipulative, working toward goals he never explains. Ancient and carrying millennia of secrets.","Tall and thin. The leanest major character in the Cosmere.","Sharp-tongued and abrasive as Wit, but fundamentally refined, eloquent, and theatrical.","Has survived since before the Shattering of Adonalsium. Functionally immortal.","Collects magic systems like stamps, but is bound by oaths that prevent him from using them to harm.","Devastatingly cutting as the King\u2019s Wit \u2014 his job is literally to insult people. But it\u2019s performative cruelty."]},
+    { name:'Szeth', series:'The Stormlight Archive', scores:[1,1,5,4,2,4,5,4], total:26,
+      just:["Short. Explicitly described as small-framed. Shin are shorter than Alethi.","Brown hair (what there is of it \u2014 usually shaved).","The Assassin in White is paradoxically one of the darkest characters. Killed kings, tortured by guilt, believes himself damned.","Short and compact. Small frame implies leanness.","Disciplined, precise, almost monk-like. His violence is clinical rather than rough.","Endured years as Truthless, forced to obey anyone who held his Oathstone. Killed himself and came back.","With an Honorblade or as a Skybreaker, one of the most dangerous combatants on Roshar.","As the Assassin in White, he is terrifying and lethal. He killed Gavilar Kholin in the opening of the series."]},
+    { name:'Wax', series:'Mistborn Era 2', scores:[3,2,3,4,4,4,4,2], total:26,
+      just:["Average. No notable height descriptions.","Not described as light-haired. Likely dark given Scadrian norms.","Haunted by the death of his partner Lessie/Paalm. Carries guilt. But fundamentally a lawman with a moral compass.","Lawman who spent 20 years in the Roughs. Athletic, not bulky.","Twenty years as a frontier lawman. Dusty, gun-slinging, hunts murderers in dead towns.","Survived two decades of frontier justice, lost his partner, returned to high society and kept going.","Twinborn (Coinshot + Skimmer). Extremely skilled with weight manipulation and firearms.","Lawful good energy. Shoots criminals but doesn\u2019t enjoy it."]},
+    { name:'Sazed', series:'Mistborn Era 1', scores:[4,2,3,5,1,4,5,1], total:25,
+      just:["Tall and long-limbed.","Terrisman \u2014 no indication of light hair.","Deep crisis of faith after Tindwyl\u2019s death. Quietly tragic. But fundamentally gentle.","Tall, long-limbed, scholarly build. The leanest Mistborn character.","The gentlest, most polite character in the series. A scholar-diplomat.","Endured castration, slavery, the fall of civilisation, becoming a god.","Became literally God (Harmony) \u2014 holds both Preservation and Ruin.","Possibly the kindest character Sanderson has ever written."]},
+    { name:'Wayne', series:'Mistborn Era 2', scores:[2,2,2,4,5,4,3,1], total:23,
+      just:["Explicitly average height.","Not described as light-haired.","Carries guilt over the man he killed, but is otherwise the comic relief.","Lean and muscular. Quick, scrappy build.","Street kid turned frontier lawman\u2019s partner. Thick accent, crude humour, steals hats. Zero polish.","Bloodmaker \u2014 can heal from almost anything. Takes enormous punishment.","Not physically the strongest. His power is speed and healing.","Generous, loyal, warm-hearted under the rough exterior."]},
+    { name:'Adolin', series:'The Stormlight Archive', scores:[4,4,1,2,1,4,4,1], total:21,
+      just:["Tall Alethi, but not as towering as Kaladin or Dalinar.","Distinctively blond (with black strands) \u2014 notable enough that it marks him as mixed heritage.","The anti-dark. Sunny, social, fashionable, optimistic. The golden boy.","Broad and solid. More muscle than wiry.","Polished, fashion-conscious, well-mannered prince. Changes his hair for every duel.","Elite duelist, survived Shadesmar, fought in multiple battles. Revived a deadeye spren.","Shardbearer, top-tier duelist, physically powerful.","Genuinely kind, warm, friendly. Killed Sadeas in a moment of rage but felt terrible about it."]},
+    { name:'Raoden', series:'Elantris', scores:[3,2,3,3,2,4,3,1], total:21,
+      just:["No data \u2014 defaulting to average.","No data on hair colour.","Trapped in a city of the cursed undead, body rotting, in constant unending pain. But his personality is optimistic.","Pre-Shaod: likely normal princely build. Post-Shaod: wasted/gaunt by definition.","A prince and scholar. Even in the hell of Elantris he organises, leads, and builds.","Endured the Shaod \u2014 constant pain, body that doesn\u2019t heal. Built a functioning society through sheer will.","Eventually restores AonDor, which is extremely powerful. But for most of the book he has no power.","Relentlessly kind, diplomatic, optimistic. About as un-mean as they come."]},
+    { name:'Elend', series:'Mistborn Era 1', scores:[3,2,2,4,1,3,4,1], total:20,
+      just:["Average \u2014 no notable height descriptions either way.","Brown hair. Not dark black, but not remotely blonde either.","A bookworm idealist who reads at parties. About as un-dark as you can get.","Loosely fitting clothes, scholarly build. Not described as muscular initially.","A nobleman who reads philosophy at balls. The polar opposite of rough.","Grew into toughness \u2014 led armies, made brutal political decisions. But started as the soft bookworm.","Became the most powerful Mistborn alive after Ascension. Book 1 Elend would be a 1.","\u2018Honest to a fault\u2019, humble, caring. Reads books about how to be a better king for the common people."]}
+  ],
+  'harry-potter': [
+    { name:'Tom Riddle', series:'Harry Potter', scores:[5,1,5,5,2,5,5,5], total:33,
+      just:["Tall as Riddle, tall as Voldemort. Consistently described as imposing in height.","Jet-black hair as Riddle. No hair at all as Voldemort.","The darkest wizard of all time. Splits his soul seven times. Commits murder at 16. Feared so much people won\u2019t say his name. The gold standard for dark.","\u2018Skeletally thin.\u2019 Both as the angular young Riddle and the skeletal Voldemort, there is nothing but lean.","Young Riddle was smooth, charming, manipulative \u2014 anything but rough. Voldemort has an aristocratic, cold precision. His evil is refined, not crude.","Created seven Horcruxes to become functionally immortal. Survived as a wraith for 13 years. Came back from death. Waged two wizarding wars.","The most powerful dark wizard in history. Only Dumbledore could match him. Created magic others thought impossible.","Murdered his father and grandparents. Killed for Horcruxes. Tortured for fun. \u2018There is no good and evil, there is only power.\u2019"]},
+    { name:'Severus Snape', series:'Harry Potter', scores:[4,1,5,5,3,5,4,5], total:32,
+      just:["Implied tall \u2014 looms over students, sweeps through corridors, billowing robes. A physically imposing presence.","Greasy black hair. Emphatically, aggressively not blonde.","The definitive dark character. Former Death Eater, dressed entirely in black, lurks in dungeons, described as bat-like. Even his redemption arc is dark.","Thin. Always thin. Sallow, angular, sharp features. Not an ounce of bulk.","Grew up in poverty in Spinner\u2019s End. Greasy hair, yellow teeth, sallow skin. But also precise, controlled, and articulate.","Double agent for decades. Killed Dumbledore on orders. Endured Voldemort\u2019s inner circle. Died being bitten by a giant snake without breaking cover.","Exceptional wizard \u2014 invented spells as a teenager, master Occlumens, skilled duelist. Not Dumbledore/Voldemort tier but close.","Relentlessly cruel to students, especially Harry and Neville. \u2018I see no difference\u2019 (about Hermione\u2019s teeth). The meanest teacher in literary history."]},
+    { name:'Sirius Black', series:'Harry Potter', scores:[4,1,5,4,4,5,4,3], total:30,
+      just:["Described as tall.","Long black hair. The name is literally \u2018Black\u2019.","From the darkest wizarding family. 12 years in Azkaban. Haunted, reckless, bitter. Even his Animagus form is a big black dog mistaken for the Grim.","Post-Azkaban he\u2019s gaunt and wasted. Even pre-Azkaban, lean and handsome rather than bulky.","Post-Azkaban: feral, unkempt, eating rats. Pre-Azkaban: reckless, rebellious, ran away from home at 16.","12 years in Azkaban surrounded by Dementors and came out sane enough to escape and fight. Died fighting Death Eaters.","Extremely talented wizard. Became an Animagus as a teenager. Fought Death Eaters as an Order member.","Could be cruel \u2014 bullied Snape as a teenager, sent him toward a werewolf \u2018as a joke\u2019. But also deeply loving and loyal."]},
+    { name:'Albus Dumbledore', series:'Harry Potter', scores:[5,3,4,4,1,5,5,2], total:29,
+      just:["Explicitly tall. Imposing, commanding figure.","Auburn-haired in youth. Silver/white in old age. Neither dark nor properly blonde, but light.","\u2018For the Greater Good\u2019 \u2014 his youth with Grindelwald. Manipulated Harry throughout his life, raising him as a sacrifice. Beneath the twinkling eyes is monstrous guilt.","Tall and thin. Elderly, slender frame beneath the flowing robes.","The most refined character in the series. Eloquent, offers sherbet lemons, wears velvet robes with celestial patterns.","Drank the potion in the cave. Carried a cursed dying hand for a year. Orchestrated his own death. Mental toughness bordering on superhuman.","The most powerful wizard alive. Only person Voldemort feared. Master of the Elder Wand.","Kind and grandfatherly on the surface, but capable of extraordinary emotional cruelty through manipulation and omission. Raised Harry to die."]},
+    { name:'Draco Malfoy', series:'Harry Potter', scores:[4,5,3,5,1,3,3,4], total:28,
+      just:["Slightly taller than Harry. ~6\u20191\u201d.","\u2018Sleek white-blond hair.\u2019 The blondest character in the series. Malfoy platinum is iconic.","Becomes a Death Eater at 16. But ultimately can\u2019t go through with the darkest acts \u2014 cries in the bathroom, lowers his wand.","Slender, pointed, sharp features. Nothing broad or muscular about him.","The polar opposite. Aristocratic, pampered, immaculate. \u2018My father will hear about this.\u2019","Endured being a teenage Death Eater with Voldemort threatening his family. But also cried a lot and ran to authority figures.","Competent wizard but not exceptional. Good enough at Occlumency to hide things from Snape.","Bullied relentlessly for years. \u2018Mudblood.\u2019 Wished death on Muggle-borns. But cracks under real pressure."]},
+    { name:'Remus Lupin', series:'Harry Potter', scores:[3,2,4,5,3,4,3,1], total:25,
+      just:["No notable height description. Average.","Light brown hair going grey. Lighter than most HP characters but not blonde.","A werewolf \u2014 literally transforms into a dark creature monthly. Lives in poverty and shame. Nearly walked out on his pregnant wife from self-loathing.","Thin, worn, looks like \u2018one good curse would finish him off.\u2019 The leanest character in the series.","Scarred face, shabby patched clothes, rough beard. But personality-wise the most gentle and measured of the Marauders.","Endured monthly werewolf transformations since childhood. Lived in poverty and social rejection. Fought in both Wizarding Wars.","Competent wizard, good DADA teacher. As a werewolf, physically dangerous. But not top tier.","One of the kindest characters in the series. Patient, gentle, encouraging."]},
+    { name:'Bill Weasley', series:'Harry Potter', scores:[5,2,2,4,4,4,3,1], total:25,
+      just:["Explicitly tall and slim.","Red hair. Weasley ginger.","Cool and edgy for a Weasley but fundamentally a good-guy curse-breaker. Scarred by a werewolf adds some darkness.","Tall and slim.","Ponytail, fang earring, rock concert aesthetic. Curse-breaker in Egyptian tombs. Post-Greyback: scarred, preference for raw meat.","Survived a werewolf mauling. Curse-breaker in dangerous tombs. Fought in the Battle of Hogwarts.","Talented Gringotts curse-breaker. Head Boy. But we don\u2019t see much combat magic.","Kind, protective older brother. Zero meanness."]},
+    { name:'James Potter', series:'Harry Potter', scores:[4,1,2,4,3,4,4,3], total:25,
+      just:["Described as tall.","Black untidy hair. Same as Harry\u2019s.","A bully as a teenager \u2014 hung Snape upside down publicly. But grew out of it and died heroically.","Tall and thin. Same build as Harry.","Cocky, arrogant, strutting around Hogwarts. Bullied Snape. But from a wealthy family \u2014 rough in attitude, not circumstance.","Became an Animagus at 15. Defied Voldemort three times. Died wandless buying Lily time to escape.","Animagus at 15 is extremely advanced. Talented enough to defy Voldemort three times.","The Pensieve scene with Snape is genuinely cruel. But he grew up and gave his life for others."]},
+    { name:'Hagrid', series:'Harry Potter', scores:[5,1,1,1,5,5,5,1], total:24,
+      just:["8\u20196\u201d. Half-giant. \u2018Almost twice as tall as a normal man.\u2019 As tall as it gets.","Thick, wild, tangled black hair and beard.","The gentlest soul in the series. Cries over dragons. Names three-headed dogs \u2018Fluffy.\u2019","\u2018At least five times as wide\u2019 as a normal man. The absolute opposite of lean.","Wild hair, massive moleskin coat, lives in a hut, keeps illegal dragons, rough dialect. The roughest character in children\u2019s literature.","Half-giant \u2014 resistant to spells. Took multiple Stunning Spells and shrugged them off. Carried Harry\u2019s \u2018dead\u2019 body from the forest.","Half-giant strength. Bends gun barrels. Rips up trees. Physically the strongest character by a wide margin.","Wouldn\u2019t hurt a fly. Well, he\u2019d befriend the fly and try to breed it."]},
+    { name:'Harry Potter', series:'Harry Potter', scores:[3,1,3,4,2,5,4,1], total:23,
+      just:["Small as a child but grows to James\u2019s height. Average-to-tall by adulthood.","Jet-black untidy hair. Famously dark and messy.","Contains a piece of Voldemort\u2019s soul. Speaks Parseltongue. Sorting Hat considered Slytherin. But fundamentally chooses light.","Thin face, knobbly knees, skinny. Seeker \u2014 the small, light position.","Raised in a cupboard wearing Dudley\u2019s hand-me-downs. But polite and well-mannered in demeanour.","Survived the Killing Curse as a baby. Faced Voldemort repeatedly. Walked willingly to his own death. Endured years of Dursley abuse.","Produced a corporeal Patronus at 13, master of the Elder Wand, defeated Voldemort. Extraordinary raw magical instinct.","Fundamentally kind. Saved Draco from Fiendfyre. Named his son after his enemies. If anything, too forgiving."]},
+    { name:'Ron Weasley', series:'Harry Potter', scores:[5,2,1,4,3,3,2,1], total:21,
+      just:["Explicitly tall and gangling.","Red hair, not blonde. Weasley ginger is distinctive but not remotely blonde.","The least dark major character. Comic relief, loyal friend, insecure but warm.","Thin and gangling. All limbs and freckles.","Grew up poor in a chaotic household. Table manners questionable. But fundamentally gentle and domesticated.","Fought in the Battle of Hogwarts, destroyed a Horcrux, sacrificed himself in chess at age 11. But emotionally the most fragile of the trio.","Average wizard. Good at chess. Strengths are loyalty and heart, not raw magical ability.","Kind-hearted, loyal to a fault. Would never deliberately hurt anyone he cares about."]},
+    { name:'Neville Longbottom', series:'Harry Potter', scores:[2,3,2,2,2,5,3,1], total:20,
+      just:["Described as short. Grows taller but never described as tall.","Blond/sandy hair as a child, darkening over time. Moderately blonde.","Parents tortured into insanity by Bellatrix. Deeply tragic. But Neville himself radiates warmth and determination.","Short and plump as a child. Slims down but never described as lean.","Clumsy and awkward. By Deathly Hallows he\u2019s scarred and battle-hardened, but core demeanour is gentle.","Stood up to Voldemort. Pulled the Sword of Gryffindor and killed Nagini. Led the Hogwarts resistance. The toughest glow-up in the series.","Grew into a capable wizard. Killed a Horcrux. Good at Herbology. But magically average for most of the series.","One of the gentlest characters. Could never be mean."]},
+    { name:'Fred & George', series:'Harry Potter', scores:[2,2,1,2,3,4,3,2], total:19,
+      just:["Shorter side. Stocky like Charlie, not lanky like Ron.","Red Weasley hair.","Pure chaos, but joyful chaos. Pranks, joke products. Even rebellion against Umbridge is hilarious. Fred\u2019s death is devastating because they\u2019re so full of light.","Stocky. Broad. Not lean.","Crude humour, explosive pranks, dropped out of school on broomsticks. Cheerful roughness, not gritty.","Ran an illegal joke shop under Umbridge. Left Hogwarts in a blaze of glory. Fred died fighting. George carried on alone.","Inventive magical talent \u2014 created an entire product line. But not combat-strong.","Pranks occasionally cross the line. But fundamentally warm, generous, and protective."]},
+    { name:'Cedric Diggory', series:'Harry Potter', scores:[5,1,1,2,1,3,3,1], total:17,
+      just:["Explicitly tall. Described as tall multiple times.","Dark hair.","\u2018The golden boy of Hogwarts.\u2019 Fair, honest, generous. Plays for Hufflepuff. His death is tragic because he\u2019s so uncomplicated and good.","\u2018Well-built and burly\u2019 \u2014 unusual for a Seeker. More athletic bulk than lean.","Polished, well-mannered, popular. The kind of boy every parent wants their daughter to date. Zero rough edges.","Competed in the Triwizard Tournament. Showed real courage. But died young before being truly tested.","Good wizard, talented enough for the Triwizard Tournament. But we see relatively little of his ability.","Insisted on replaying a Quidditch match he won because Harry fell. The fairest, most decent guy in the series."]}
+  ],
+  'romantasy': [
+    { name:'Rowan', series:'Throne of Glass', scores:[5,4,4,2,3,5,5,3], total:31,
+      just:["6\u20194\u201d, broad-shouldered. One of the tallest Fae.","Silver hair. Not blonde exactly, but light and striking. Close enough.","Centuries of grief after losing his first mate Lyria. Brutal, cold warrior when first introduced. Wicked facial tattoo. Dark past, dark intensity.","Broad-shouldered, every inch corded with muscle. Massive. Not lean at all.","Initially brutal and cold. Facial tattoo. Warrior Fae. But also a prince with refined manners when he chooses.","Centuries old warrior who lost his mate and unborn child. Fought in countless wars. Endured Maeve\u2019s blood oath.","Ice and wind magic. Centuries of warrior training. One of the most powerful Fae alive.","Cold and punishing when first introduced \u2014 bites Aelin, freezes her. But melts into devoted protectiveness."]},
+    { name:'Lorcan', series:'Throne of Glass', scores:[5,1,5,1,4,5,5,4], total:30,
+      just:["Possibly near 7\u2019. Described as huge. Towers over everyone.","Black shoulder-length hair.","Served Maeve for centuries as her attack dog. Cruel features. Onyx eyes. Betrayed Aelin\u2019s group. His whole aesthetic screams darkness.","Massive, muscular. The biggest build of any SJM male character.","Granite-hewn features. Brutal warrior. No social graces.","Centuries-old warrior. Survived serving under Maeve. Nearly unkillable.","One of the most powerful Fae alive. Centuries of combat experience.","Betrayed Aelin. Cruel features, cruel disposition. Cold and ruthless. But found his heart with Elide."]},
+    { name:'Aedion', series:'Throne of Glass', scores:[5,5,3,2,4,5,4,2], total:30,
+      just:["6\u20193\u201d, heavily muscled.","Long golden blond locks. Striking.","Pretended to be a traitor to his own people for years. Carries the shame of \u2018Adarlan\u2019s Whore.\u2019 But his core is fiercely loyal.","Heavily muscled. Not lean.","Warrior general. Cocky, loud, unfiltered. Fought in brutal campaigns.","Spent years pretending to serve the conqueror of his homeland while building resistance. Imprisoned, tortured, nearly executed.","Half-Fae general. Skilled warrior and tactician.","Brash and confrontational but deeply loving. His aggression is protective, not cruel."]},
+    { name:'Xaden', series:'Fourth Wing', scores:[5,1,5,2,4,5,5,3], total:30,
+      just:["Well over six feet. Broad-shouldered, imposing.","Tousled black hair.","Son of a traitor, 107 loyalty scars on his back. Shadow summoner \u2014 literally controls darkness. Emotionally closed off, secretive, morally grey.","Impressively muscled and broad-shouldered. Not lean.","Scarred face, rebellion relic tattoo, grew up as an outcast. Wingleader through force and respect.","Orphaned when his father was executed. Took responsibility for 107 children. Scarred himself for each one.","Shadow summoner plus second signet. Bonded to Sgaeyl. Formidable fighter and Wingleader.","Threatens Violet early on. Cold, commanding, secretive. But fiercely protective underneath."]},
+    { name:'Rhysand', series:'ACOTAR', scores:[5,1,5,3,2,5,5,3], total:29,
+      just:["Tall, commanding Illyrian. Towers in every scene.","Black hair.","High Lord of the Night Court. Cultivated a terrifying persona Under the Mountain for 50 years. His court is literally called the Court of Nightmares.","Muscular but not bulky \u2014 lithe, predatory. More panther than bear.","Refined, eloquent, wears fine clothing. His cruelty is elegant, not crude.","50 years Under the Mountain being tortured and forced to do Amarantha\u2019s bidding. Protected Feyre, his court, and his secrets through sheer will.","The most powerful High Lord in Prythian\u2019s history. Daemati, winnower, darkness/starlight wielder.","Performs cruelty as the Night Court persona, but is genuinely kind underneath."]},
+    { name:'Azriel', series:'ACOTAR', scores:[4,1,5,4,2,5,5,3], total:29,
+      just:["Tall Illyrian, but described as slightly less massive than Cassian.","Black hair.","The shadowsinger. Literally wreathed in living shadows. Spymaster. Torturer. Burnt as a child. Beautiful, lethal, impossible to read.","More elegant and lean than Cassian\u2019s bulk. Lethal grace of a predator.","Despite the scarred hands, Azriel is quiet, controlled, refined. His violence is precise, not crude.","Burned and locked in darkness as a child. Became the most feared spymaster alive. Endures centuries of unrequited feelings in silence.","Seven siphons. Spymaster whose shadows give unmatched intelligence. Truth-Teller, a blade of legendary power.","Capable of terrifying violence as a torturer. But also gentle, tender, quietly devoted."]},
+    { name:'Wrath', series:'Kingdom of the Wicked', scores:[4,1,5,3,2,5,5,4], total:29,
+      just:["Over 6\u2019. Tall and imposing demon prince.","Dark/black hair.","A literal Prince of Hell named Wrath. Rules a demon realm. Cold, possessive, dangerous.","Toned but not described as either bulky or wiry.","Despite being a demon, Wrath is refined, controlled, aristocratic. His anger is cold, not wild.","Demon prince who has ruled Hell for millennia. Near-immortal.","Prince of Hell. Power fuelled by the sin of wrath itself.","Cold, commanding, possessive. His name is literally Wrath. But also protective and devoted."]},
+    { name:'Tamlin', series:'ACOTAR', scores:[4,5,3,2,3,3,4,4], total:28,
+      just:["Tall, warrior build.","Long golden blond hair. The blondest male in ACOTAR.","Becomes controlling and abusive. Allies with Hybern. But starts as the golden hero \u2014 his darkness is a fall from grace.","Warrior\u2019s build honed over centuries. More solid than lean.","His beast form is rough \u2014 claws, fangs. Emotionally rough \u2014 explosive temper. But also pastoral and courtly.","Endured Under the Mountain but crumbles psychologically. Can\u2019t hold his court together. Less tough than the Night Court males.","High Lord of Spring. Shapeshifter. Powerful magic. But outclassed by Rhysand.","Locks Feyre in the house. Explosive rages. Allies with the enemy. Controlling, possessive, destructive."]},
+    { name:'Casteel', series:'From Blood and Ash', scores:[5,1,4,2,3,5,5,3], total:28,
+      just:["Over six feet. Imposing.","Dark, thick hair.","The Dark One \u2014 literally his title. Infiltrated enemy territory under a false identity. Imprisoned and tortured for decades.","Large, powerful build. Not lean.","Can be crude and provocative. Warrior prince. But also charming, silver-tongued, dimpled.","Imprisoned and tortured for 50 years. Infiltrated enemy territory alone. Kept going through centuries of conflict.","Atlantian prince with enormous power. Over 200 years of combat experience.","Kidnaps Poppy. Manipulates and deceives. But genuinely falls for her."]},
+    { name:'Fenrys', series:'Throne of Glass', scores:[4,5,3,3,2,5,4,1], total:27,
+      just:["Tall Fae warrior.","Long, wavy blonde hair. The blondest male in TOG.","Enslaved by Maeve through blood oath. Forced to do terrible things. Lost his twin. Dark circumstances, not dark nature.","Muscular warrior but not described as massive like Lorcan or Rowan.","Beautiful, charismatic, described as incredibly attractive. More pretty than rough.","Broke a blood oath through sheer will \u2014 considered impossible. Lost his twin. Endured centuries of servitude.","Powerful Fae warrior. Can teleport short distances.","Warm, funny, fiercely loyal. Not a mean bone in his body."]},
+    { name:'Dorian', series:'Throne of Glass', scores:[4,1,4,5,1,4,5,2], total:26,
+      just:["6\u20190\u201d. Tall but not towering by Fae standards.","Raven-black hair.","Possessed by a Valg demon prince. Had a Wyrdstone collar. Killed his father. His raw magic is described as dark/cold.","Tall and lean. Bookish prince build, not warrior bulk.","A prince who reads books, loves dogs, charms women. Polished, educated, courtly.","Endured Valg possession and fought his way out. Killed his own father. Lost Sorscha.","Raw magic that terrified even Aelin. Broke free from a Valg prince through sheer magical will.","Kind, thoughtful, diplomatic. His mean moments are when the Valg controlled him."]},
+    { name:'Hunt', series:'Crescent City', scores:[4,1,4,2,3,5,5,2], total:26,
+      just:["Tall, heavily muscled angel.","Dark hair.","Known as \u2018the Shadow of Death.\u2019 Former slave with a brand on his forehead. Led a failed rebellion.","Very muscular. Angel warrior build. Not lean.","Scarred, branded, soldier. But also adapts to modern urban life \u2014 watches TV, eats takeout.","Led a rebellion, enslaved for centuries, had his power leashed. Kept fighting.","Lightning wielder. One of the most powerful angels in existence.","Gruff exterior but a softie with Bryce. Makes her coffee."]},
+    { name:'Cassian', series:'ACOTAR', scores:[5,1,2,1,5,5,5,1], total:25,
+      just:["Tallest of the Illyrians, who are already tall. Fills every room.","Black hair.","The least dark of the bat boys. Open, brash, warm-hearted.","Built like a warlord. Massive, broad-shouldered, pure muscle. The opposite of lean.","Born as a bastard nobody in an Illyrian war camp. Rough-hewn features. Brash, loud, physical.","Had his wings shredded protecting Azriel. Crawled across a battlefield. Grew up with nothing.","General Commander. Raw physical power surpasses the other Illyrians. Seven siphons barely contain his power.","Warm, protective, loyal. Cries about Nesta. The biggest softie wrapped in the biggest warrior."]},
+    { name:'Ruhn', series:'Crescent City', scores:[5,1,4,2,4,4,4,1], total:25,
+      just:["Strikingly tall and broad-shouldered.","Raven-black hair.","Abused by his father (burn scars hidden by tattoos). Estranged from Fae royalty. Piercings, tattoos \u2014 dark aesthetic.","Very muscular, broad. Not lean.","Piercings, tattoos, shaved side, lives with his stoner friends. Rebellious prince who rejected court life.","Abused by his father. Tortured by the Asteri. Kept fighting.","Starborn powers. Skilled fighter. The Starsword chose him.","Protective, kind, loyal. Immediately caring toward friends and sister."]},
+    { name:'Chaol', series:'Throne of Glass', scores:[4,2,2,3,3,4,2,2], total:22,
+      just:["6\u20191\u201d. Solid.","Chestnut/bronze hair. Light-ish brown but not blonde.","Struggles with loyalty vs. morality but fundamentally honourable. Not brooding.","Muscular and tall. Soldier build.","Captain of the Guard. Military discipline. But principled rather than rough.","Paralysed, rebuilt himself. Fought in the final war.","No magic. Skilled swordsman but entirely human in a world of Fae.","Can be judgmental and rigid. Turned on Aelin. But not cruel \u2014 just stubborn."]},
+    { name:'Lucien', series:'ACOTAR', scores:[3,2,2,4,2,3,2,1], total:19,
+      just:["Fae-tall but not described as imposing.","Fire-red hair. Red isn\u2019t blonde.","Has tragedy but his personality is witty, warm, diplomatic. Not brooding.","Lean build compared to the Illyrian warriors. More fox than wolf.","Courtly, diplomatic, witty. Not rough.","Lost an eye to Amarantha. Cast out by family. But also a bystander much of the series.","Has fire magic and mechanical eye. But consistently outpowered by every other male.","Kind, loyal, funny. The nicest male in ACOTAR."]}
+  ]
+};
+
+const IP_COLORS = {
+  'Cosmere':   '#4aa8d8',
+  'Harry Potter': '#d93030'
+};
+
+const IP_LABELS = {
+  'cosmere': 'Cosmere',
+  'harry-potter': 'Harry Potter',
+  'romantasy': 'Romantasy'
+};
+
+/* Per-sub-series colors — used for romantasy in the All chart, and for all series in the boxplot */
+const SERIES_COLORS = {
+  // Cosmere
+  'Mistborn Era 1':                   '#2980b9',
+  'Mistborn Era 1 & 2':               '#2980b9',
+  'Mistborn Era 2':                   '#5dade2',
+  'The Stormlight Archive':           '#1a5276',
+  'Warbreaker / Stormlight Archive':  '#1abc9c',
+  'Cosmere-wide':                     '#76d7c4',
+  'Elantris':                         '#85c1e9',
+  // Harry Potter
+  'Harry Potter':                     '#d93030',
+  // Romantasy
+  'ACOTAR':                           '#9b59b6',
+  'Throne of Glass':                  '#e67e22',
+  'Crescent City':                    '#e74c8b',
+  'Fourth Wing':                      '#27ae60',
+  'From Blood and Ash':               '#c0392b',
+  'Kingdom of the Wicked':            '#8e44ad'
+};
+
+/* Subreddit subscriber counts (approximate, from subredditstats.com).
+   Used as a proxy for fandom size / online engagement. */
+const SERIES_POPULARITY = {
+  'Mistborn Era 1':                   89800,
+  'Mistborn Era 1 & 2':              89800,   // merged with Era 1
+  'Mistborn Era 2':                   89800,   // same subreddit as Era 1
+  'The Stormlight Archive':           217000,
+  'Warbreaker / Stormlight Archive':  1700,
+  'Cosmere-wide':                     129000,
+  'Elantris':                         1900,
+  'Harry Potter':                     2065000,
+  'ACOTAR':                           105700,
+  'Throne of Glass':                  5200,
+  'Crescent City':                    24800,
+  'Fourth Wing':                      36500,
+  'From Blood and Ash':               10800,
+  'Kingdom of the Wicked':            1000
+};
+
+function buildAllData() {
+  const all = [];
+  for (const [key, chars] of Object.entries(SERIES_DATA)) {
+    const ipLabel = IP_LABELS[key];
+    chars.forEach(c => {
+      const seriesLabel = key === 'romantasy' ? c.series : ipLabel;
+      all.push({
+        ...c,
+        displayName: `${c.name} (${seriesLabel})`,
+        ip: ipLabel,
+        ipKey: key,
+        barColor: key === 'romantasy'
+          ? (SERIES_COLORS[c.series] || '#9b59b6')
+          : (IP_COLORS[ipLabel] || '#888')
+      });
+    });
+  }
+  function median(scores) {
+    const sorted = [...scores].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+  }
+  all.sort((a, b) => b.total - a.total || median(b.scores) - median(a.scores));
+  return all;
+}
+
+let currentSeriesKey = 'all';
+let ALL_DATA = buildAllData();
+let DATA = ALL_DATA;
+let isAllMode = true;
+
+let mainChart = null;
+let radarChart = null;
+let boxplotChart = null;
+let bubbleChart = null;
+let currentCharIdx = -1;
+
+/* ── NAV ── */
+function toggleMobileNav() {
+  document.getElementById('navLinks').classList.toggle('open');
+}
+
+function switchSeries(key, linkEl) {
+  if (key === currentSeriesKey) return;
+  currentSeriesKey = key;
+  isAllMode = (key === 'all');
+  if (isAllMode) {
+    ALL_DATA = buildAllData();
+    DATA = ALL_DATA;
+  } else {
+    ALL_DATA = null;
+    DATA = SERIES_DATA[key];
+  }
+  // Update nav active state
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  if (linkEl) linkEl.classList.add('active');
+  document.getElementById('navLinks').classList.remove('open');
+  // Update legend
+  updateLegend();
+  // Close drilldown and rebuild chart
+  closeDrilldown();
+  if (mainChart) { mainChart.destroy(); mainChart = null; }
+  if (boxplotChart) { boxplotChart.destroy(); boxplotChart = null; }
+  if (bubbleChart) { bubbleChart.destroy(); bubbleChart = null; }
+  buildMainChart();
+  // Show/hide All-mode charts
+  const boxplotSection = document.getElementById('boxplotSection');
+  const bubbleSection = document.getElementById('bubbleSection');
+  if (isAllMode) {
+    // Reorder: bubble (1), boxplot (2), bar chart (3)
+    document.getElementById('mainView').style.order = '3';
+    bubbleSection.style.order = '1';
+    boxplotSection.style.order = '2';
+    bubbleSection.style.display = 'block';
+    buildBubbleChart();
+    boxplotSection.style.display = 'block';
+    buildBoxplot();
+  } else {
+    document.getElementById('mainView').style.order = '0';
+    bubbleSection.style.display = 'none';
+    boxplotSection.style.display = 'none';
+  }
+  window.scrollTo({ top: document.getElementById('content').offsetTop - 80, behavior: 'smooth' });
+}
+
+function showComingSoon(series) {
+  document.getElementById('navLinks').classList.remove('open');
+  const modal = document.getElementById('comingSoonModal');
+  document.getElementById('modalTitle').textContent = series + ' \u2014 Coming Soon';
+  document.getElementById('modalDesc').textContent =
+    `We haven\u2019t scored the ${series} characters yet. Stay tuned \u2014 there are plenty more fictional men to judge.`;
+  modal.classList.add('active');
+}
+
+function closeModal(e) {
+  if (e && e.target !== e.currentTarget && !e.target.classList.contains('modal-close')) return;
+  document.getElementById('comingSoonModal').classList.remove('active');
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeModal();
+    if (currentCharIdx >= 0) closeDrilldown();
+  }
+  if (currentCharIdx >= 0) {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); navigateChar(-1); }
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); navigateChar(1); }
+  }
+});
+
+/* ── LEGEND ── */
+function updateLegend() {
+  const legendRow = document.getElementById('legendRow');
+  legendRow.innerHTML = '';
+  if (isAllMode) {
+    // Show Cosmere + Harry Potter as single colors, then each romantasy sub-series
+    const allLegendItems = [
+      ['Cosmere', IP_COLORS['Cosmere']],
+      ['Harry Potter', IP_COLORS['Harry Potter']],
+      ['ACOTAR', SERIES_COLORS['ACOTAR']],
+      ['Throne of Glass', SERIES_COLORS['Throne of Glass']],
+      ['Crescent City', SERIES_COLORS['Crescent City']],
+      ['Fourth Wing', SERIES_COLORS['Fourth Wing']],
+      ['From Blood and Ash', SERIES_COLORS['From Blood and Ash']],
+      ['Kingdom of the Wicked', SERIES_COLORS['Kingdom of the Wicked']]
+    ];
+    allLegendItems.forEach(([label, color]) => {
+      const item = document.createElement('span');
+      item.className = 'legend-item';
+      item.innerHTML = `<span class="legend-swatch" style="background:${color}"></span>${label}`;
+      legendRow.appendChild(item);
+    });
+  } else {
+    DIMS.forEach(d => {
+      const item = document.createElement('span');
+      item.className = 'legend-item';
+      item.innerHTML = `<span class="legend-swatch" style="background:${COLORS[d]}"></span>${d}`;
+      legendRow.appendChild(item);
+    });
+  }
+}
+updateLegend();
+
+/* ── MAIN CHART ── */
+function buildMainChart() {
+  const ctx = document.getElementById('mainChart').getContext('2d');
+
+  if (isAllMode) {
+    buildAllChart(ctx);
+  } else {
+    buildStackedChart(ctx);
+  }
+
+  document.getElementById('mainChartContainer').style.height =
+    Math.max(420, DATA.length * 48) + 'px';
+}
+
+function buildStackedChart(ctx) {
+  const labels = DATA.map(d => d.name);
+
+  const datasets = DIMS.map((dim, i) => ({
+    label: dim,
+    data: DATA.map(d => d.scores[i]),
+    backgroundColor: COLORS[dim],
+    borderColor: '#0b0b1a',
+    borderWidth: 1,
+    borderRadius: 0,
+    barPercentage: 0.72,
+    categoryPercentage: 0.82
+  }));
+
+  mainChart = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 800, easing: 'easeOutQuart' },
+      scales: {
+        x: {
+          stacked: true,
+          max: 42,
+          grid: { color: 'rgba(255,255,255,0.03)' },
+          ticks: { color: '#555', font: { family: 'Inter', size: 11 } },
+          border: { color: 'rgba(255,255,255,0.06)' }
+        },
+        y: {
+          stacked: true,
+          grid: { display: false },
+          ticks: { color: '#ccc', font: { family: 'Inter', size: 13, weight: '600' } },
+          border: { display: false }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(20, 20, 40, 0.95)',
+          titleFont: { family: 'Inter', weight: '600' },
+          bodyFont: { family: 'Inter' },
+          borderColor: 'rgba(255,255,255,0.08)',
+          borderWidth: 1,
+          cornerRadius: 8,
+          padding: 12,
+          callbacks: {
+            afterBody(items) {
+              const idx = items[0].dataIndex;
+              return `\nTotal: ${DATA[idx].total} / 40`;
+            }
+          }
+        }
+      },
+      onHover(evt, elements) {
+        evt.native.target.style.cursor = elements.length > 0 ? 'pointer' : 'default';
+      },
+      onClick(evt, elements) {
+        if (elements.length > 0) {
+          showDrilldown(elements[0].index);
+        }
+      }
+    },
+    plugins: [{
+      id: 'totalLabels',
+      afterDatasetsDraw(chart) {
+        const { ctx: c, scales: { x, y } } = chart;
+        DATA.forEach((d, i) => {
+          const xPos = x.getPixelForValue(d.total);
+          const yPos = y.getPixelForValue(i);
+          c.save();
+          c.fillStyle = '#888';
+          c.font = '600 11px Inter, sans-serif';
+          c.textAlign = 'left';
+          c.textBaseline = 'middle';
+          c.fillText(d.total, xPos + 8, yPos);
+          c.restore();
+        });
+      }
+    }]
+  });
+}
+
+function buildAllChart(ctx) {
+  const labels = ALL_DATA.map(d => d.displayName);
+  const barColors = ALL_DATA.map(d => d.barColor);
+
+  mainChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Total Score',
+        data: ALL_DATA.map(d => d.total),
+        backgroundColor: barColors,
+        borderColor: '#0b0b1a',
+        borderWidth: 1,
+        borderRadius: 4,
+        barPercentage: 0.72,
+        categoryPercentage: 0.82
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 800, easing: 'easeOutQuart' },
+      scales: {
+        x: {
+          max: 42,
+          grid: { color: 'rgba(255,255,255,0.03)' },
+          ticks: { color: '#555', font: { family: 'Inter', size: 11 } },
+          border: { color: 'rgba(255,255,255,0.06)' }
+        },
+        y: {
+          grid: { display: false },
+          ticks: { color: '#ccc', font: { family: 'Inter', size: 12, weight: '500' } },
+          border: { display: false }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(20, 20, 40, 0.95)',
+          titleFont: { family: 'Inter', weight: '600' },
+          bodyFont: { family: 'Inter' },
+          borderColor: 'rgba(255,255,255,0.08)',
+          borderWidth: 1,
+          cornerRadius: 8,
+          padding: 12,
+          callbacks: {
+            label(item) {
+              return `Score: ${item.raw} / 40`;
+            }
+          }
+        }
+      },
+      onHover(evt, elements) {
+        evt.native.target.style.cursor = elements.length > 0 ? 'pointer' : 'default';
+      },
+      onClick(evt, elements) {
+        if (elements.length > 0) {
+          showDrilldown(elements[0].index);
+        }
+      }
+    },
+    plugins: [{
+      id: 'totalLabels',
+      afterDatasetsDraw(chart) {
+        const { ctx: c, scales: { x, y } } = chart;
+        ALL_DATA.forEach((d, i) => {
+          const xPos = x.getPixelForValue(d.total);
+          const yPos = y.getPixelForValue(i);
+          c.save();
+          c.fillStyle = '#888';
+          c.font = '600 11px Inter, sans-serif';
+          c.textAlign = 'left';
+          c.textBaseline = 'middle';
+          c.fillText(d.total, xPos + 8, yPos);
+          c.restore();
+        });
+      }
+    }]
+  });
+}
+
+/* ── BOXPLOT ── */
+function buildBoxplot() {
+  if (boxplotChart) { boxplotChart.destroy(); boxplotChart = null; }
+
+  // Define the order of series for the boxplot
+  const seriesOrder = [
+    'Mistborn Era 1', 'Mistborn Era 2', 'The Stormlight Archive',
+    'Warbreaker / Stormlight Archive', 'Elantris', 'Cosmere-wide',
+    'Harry Potter',
+    'ACOTAR', 'Throne of Glass', 'Crescent City',
+    'Fourth Wing', 'From Blood and Ash', 'Kingdom of the Wicked'
+  ];
+
+  // Collect totals per series
+  const seriesScores = {};
+  for (const [key, chars] of Object.entries(SERIES_DATA)) {
+    chars.forEach(c => {
+      let s = c.series;
+      // Merge "Mistborn Era 1 & 2" into "Mistborn Era 1"
+      if (s === 'Mistborn Era 1 & 2') s = 'Mistborn Era 1';
+      if (!seriesScores[s]) seriesScores[s] = [];
+      seriesScores[s].push(c.total);
+    });
+  }
+
+  // Sort by highest max score, descending
+  const labels = seriesOrder.filter(s => seriesScores[s])
+    .sort((a, b) => Math.max(...seriesScores[b]) - Math.max(...seriesScores[a]));
+  const data = labels.map(s => seriesScores[s]);
+  const colors = labels.map(s => SERIES_COLORS[s] || '#888');
+
+  const ctx = document.getElementById('boxplotChart').getContext('2d');
+  boxplotChart = new Chart(ctx, {
+    type: 'boxplot',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Total Score',
+        data: data,
+        backgroundColor: colors.map(c => c + '40'),
+        borderColor: colors,
+        borderWidth: 2,
+        outlierBackgroundColor: colors,
+        outlierBorderColor: colors,
+        outlierRadius: 4,
+        itemBackgroundColor: colors.map(c => c + 'aa'),
+        itemBorderColor: colors,
+        itemRadius: 4,
+        padding: 10
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 800, easing: 'easeOutQuart' },
+      scales: {
+        x: {
+          min: 15,
+          max: 40,
+          grid: { color: 'rgba(255,255,255,0.03)' },
+          ticks: { color: '#555', font: { family: 'Inter', size: 11 } },
+          border: { color: 'rgba(255,255,255,0.06)' },
+          title: { display: true, text: 'Total Score (out of 40)', color: '#666', font: { family: 'Inter', size: 12 } }
+        },
+        y: {
+          grid: { display: false },
+          ticks: { color: '#ccc', font: { family: 'Inter', size: 12, weight: '500' } },
+          border: { display: false }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(20, 20, 40, 0.95)',
+          titleFont: { family: 'Inter', weight: '600' },
+          bodyFont: { family: 'Inter' },
+          borderColor: 'rgba(255,255,255,0.08)',
+          borderWidth: 1,
+          cornerRadius: 8,
+          padding: 12
+        }
+      }
+    }
+  });
+}
+
+/* ── SCATTER CHART (Fandom vs Median Score) ── */
+function buildBubbleChart() {
+  if (bubbleChart) { bubbleChart.destroy(); bubbleChart = null; }
+
+  // Group characters by sub-series
+  const seriesMap = {};
+  for (const [key, chars] of Object.entries(SERIES_DATA)) {
+    chars.forEach(c => {
+      let s = c.series;
+      if (s === 'Mistborn Era 1 & 2') s = 'Mistborn Era 1';
+      if (!seriesMap[s]) seriesMap[s] = [];
+      seriesMap[s].push({ name: c.name, total: c.total });
+    });
+  }
+
+  const points = Object.entries(seriesMap).map(([series, chars]) => {
+    // Sort by total descending, take top 5
+    const sorted = [...chars].sort((a, b) => b.total - a.total);
+    const top5 = sorted.slice(0, 5);
+    const maxScore = sorted[0].total;
+    const pop = SERIES_POPULARITY[series] || 1000;
+    return { series, maxScore, popularity: pop, top5, color: SERIES_COLORS[series] || '#888' };
+  });
+
+  const xs = points.map(p => p.maxScore);
+  const xMin = Math.min(...xs) - 2;
+  const xMax = Math.max(...xs) + 2;
+
+  const ctx = document.getElementById('bubbleChart').getContext('2d');
+  bubbleChart = new Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: points.map(p => ({
+        label: p.series,
+        data: [{ x: p.maxScore, y: p.popularity }],
+        backgroundColor: p.color,
+        borderColor: p.color,
+        borderWidth: 2,
+        pointRadius: 7,
+        pointHoverRadius: 10,
+        pointStyle: 'circle'
+      }))
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 800, easing: 'easeOutQuart' },
+      scales: {
+        x: {
+          min: xMin,
+          max: xMax,
+          grid: { color: 'rgba(255,255,255,0.03)' },
+          ticks: { color: '#555', font: { family: 'Inter', size: 11 } },
+          border: { color: 'rgba(255,255,255,0.06)' },
+          title: { display: true, text: 'Max Raining Men Score', color: '#888', font: { family: 'Inter', size: 13, weight: '600' } }
+        },
+        y: {
+          type: 'logarithmic',
+          min: 500,
+          max: 5000000,
+          grid: { color: 'rgba(255,255,255,0.03)' },
+          ticks: {
+            color: '#555',
+            font: { family: 'Inter', size: 11 },
+            callback(val) {
+              if (val >= 1000000) return (val / 1000000).toFixed(0) + 'M';
+              if (val >= 1000) return (val / 1000).toFixed(0) + 'K';
+              return val;
+            }
+          },
+          border: { color: 'rgba(255,255,255,0.06)' },
+          title: { display: true, text: 'Subreddit Subscribers (log scale)', color: '#888', font: { family: 'Inter', size: 13, weight: '600' } }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(20, 20, 40, 0.95)',
+          titleFont: { family: 'Inter', weight: '600' },
+          bodyFont: { family: 'Inter' },
+          borderColor: 'rgba(255,255,255,0.08)',
+          borderWidth: 1,
+          cornerRadius: 8,
+          padding: 12,
+          callbacks: {
+            title(items) { return items[0].dataset.label; },
+            label(item) {
+              const d = item.raw;
+              const p = points[item.datasetIndex];
+              const popStr = d.y >= 1000000 ? (d.y / 1000000).toFixed(1) + 'M'
+                           : d.y >= 1000 ? (d.y / 1000).toFixed(1) + 'K' : d.y;
+              return [`Subscribers: ${popStr}`, ''];
+            },
+            afterLabel(item) {
+              const p = points[item.datasetIndex];
+              return p.top5.map(c => `${c.name}: ${c.total}`);
+            }
+          }
+        }
+      }
+    },
+    plugins: [{
+      id: 'scatterLabels',
+      afterDatasetsDraw(chart) {
+        const { ctx: c } = chart;
+        chart.data.datasets.forEach((ds, i) => {
+          const meta = chart.getDatasetMeta(i);
+          if (!meta.data[0]) return;
+          const { x, y } = meta.data[0];
+          c.save();
+          c.fillStyle = '#ddd';
+          c.font = '500 11px Inter, sans-serif';
+          c.textAlign = 'center';
+          c.textBaseline = 'bottom';
+          c.fillText(ds.label, x, y - 12);
+          c.restore();
+        });
+      }
+    }]
+  });
+}
+
+/* ── VIEWS ── */
+function closeDrilldown() {
+  const dv = document.getElementById('drilldownView');
+  dv.classList.remove('active');
+  if (radarChart) { radarChart.destroy(); radarChart = null; }
+  currentCharIdx = -1;
+  // Highlight nothing on the chart
+  if (mainChart) {
+    mainChart.setActiveElements([]);
+    mainChart.update();
+  }
+}
+
+function navigateChar(direction) {
+  const newIdx = currentCharIdx + direction;
+  if (newIdx >= 0 && newIdx < DATA.length) {
+    showDrilldown(newIdx);
+  }
+}
+
+function showDrilldown(idx) {
+  currentCharIdx = idx;
+  const char = DATA[idx];
+  const dv = document.getElementById('drilldownView');
+  const wasActive = dv.classList.contains('active');
+  dv.classList.add('active');
+  if (!wasActive) {
+    dv.classList.add('view-transition');
+    setTimeout(() => dv.classList.remove('view-transition'), 400);
+  }
+
+  document.getElementById('drillCharName').textContent = char.name;
+  let seriesText = char.series;
+  if (isAllMode && char.ip && char.ip !== char.series) {
+    seriesText = `${char.ip} — ${char.series}`;
+  }
+  document.getElementById('drillCharSeries').textContent = seriesText;
+  document.getElementById('drillTotal').innerHTML = `Score: <strong>${char.total}</strong> / 40`;
+
+  // Prev/Next buttons (top and bottom)
+  const isFirst = idx === 0;
+  const isLast = idx === DATA.length - 1;
+  const prevName = !isFirst ? DATA[idx - 1].name : 'Previous';
+  const nextName = !isLast ? DATA[idx + 1].name : 'Next';
+
+  document.getElementById('prevBtn').disabled = isFirst;
+  document.getElementById('nextBtn').disabled = isLast;
+  document.getElementById('prevLabel').textContent = prevName;
+  document.getElementById('nextLabel').textContent = nextName;
+  document.getElementById('prevBtnBottom').disabled = isFirst;
+  document.getElementById('nextBtnBottom').disabled = isLast;
+  document.getElementById('prevLabelBottom').textContent = prevName;
+  document.getElementById('nextLabelBottom').textContent = nextName;
+
+  // Scroll to drilldown
+  setTimeout(() => {
+    dv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 50);
+
+  // Radar chart
+  if (radarChart) radarChart.destroy();
+  const ctx = document.getElementById('radarChart').getContext('2d');
+  radarChart = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: DIMS,
+      datasets: [{
+        label: char.name,
+        data: char.scores,
+        backgroundColor: 'rgba(240,192,64,0.12)',
+        borderColor: '#f0c040',
+        borderWidth: 2,
+        pointBackgroundColor: DIMS.map(d => COLORS[d]),
+        pointBorderColor: 'rgba(255,255,255,0.3)',
+        pointBorderWidth: 1,
+        pointRadius: 5,
+        pointHoverRadius: 7
+      }]
+    },
+    options: {
+      responsive: true,
+      animation: { duration: 600, easing: 'easeOutQuart' },
+      scales: {
+        r: {
+          min: 0, max: 5,
+          ticks: { stepSize: 1, color: '#555', backdropColor: 'transparent', font: { family: 'Inter', size: 10 } },
+          grid: { color: 'rgba(255,255,255,0.05)' },
+          angleLines: { color: 'rgba(255,255,255,0.05)' },
+          pointLabels: {
+            color: DIMS.map(d => COLORS[d]),
+            font: { family: 'Inter', size: 12, weight: '600' }
+          }
+        }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+
+  // Justification cards
+  const container = document.getElementById('justCards');
+  container.innerHTML = '';
+  DIMS.forEach((dim, i) => {
+    const score = char.scores[i];
+    let pips = '';
+    for (let p = 0; p < 5; p++) {
+      const filled = p < score;
+      pips += `<span class="pip" style="background:${filled ? COLORS[dim] : 'rgba(255,255,255,0.06)'}"></span>`;
+    }
+    const card = document.createElement('div');
+    card.className = 'justification-card';
+    card.style.borderLeftColor = COLORS[dim];
+    card.style.animationDelay = (i * 0.05) + 's';
+    card.innerHTML = `
+      <div class="dim-label" style="color:${COLORS[dim]}">${dim}</div>
+      <div class="dim-score">${score} / 5 <span class="score-pips">${pips}</span></div>
+      <div class="dim-text">${char.just[i]}</div>`;
+    container.appendChild(card);
+  });
+}
+
+// Initial render — start in All mode
+document.getElementById('mainView').style.order = '3';
+document.getElementById('bubbleSection').style.display = 'block';
+document.getElementById('bubbleSection').style.order = '1';
+document.getElementById('boxplotSection').style.display = 'block';
+document.getElementById('boxplotSection').style.order = '2';
+buildBubbleChart();
+buildBoxplot();
+buildMainChart();
+</script>
+</body>
+</html>
